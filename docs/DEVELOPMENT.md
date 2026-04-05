@@ -145,7 +145,7 @@ Implementation of the robot-side bidding marketplace. See [BIDDING_MARKETPLACE_P
 
 The external marketplace (`yakrover-marketplace`) calls robot MCP tools directly. This repo implements the robot side: bid evaluation, task execution, on-chain bidding terms, and payment receipt.
 
-Implementation order from the plan: Stage 6 → 1a/1b → 1d → 2b → 1c → 3 → 5b → 2a/2c → 4 → 5 → 5c.
+**Stage 1 complete.** Next: Stage 2b (align FakeRover `bid()`/`execute()` to the new schema for end-to-end testing without hardware), then 2a/2c, 3, 5b, 4, 5, 5c.
 
 ---
 
@@ -168,9 +168,9 @@ Add `--chain` flag to all CLI scripts so robots can be registered and discovered
 
 ### Stage 1: Auction Engine Core (`src/auction/`)
 
-- [ ] **1a** — Create `src/auction/models.py` — `TaskSpec`, `Bid`, `AuctionResult` dataclasses
-- [ ] **1b** — Create `src/auction/engine.py` — `AuctionEngine` (bid fan-out, acceptance, execution, `busy` set for concurrency guard)
-- [ ] **1c** — Create `src/auction/mcp_tools.py` — fleet-level tools: `fleet_request_bids`, `fleet_list_auctions`, `fleet_accept_bid`, `fleet_execute_task`, `fleet_get_auction_status`
+- [x] **1a** — Create `src/auction/models.py` — `TaskSpec`, `Bid`, `AuctionResult` dataclasses
+- [x] **1b** — Create `src/auction/engine.py` — `AuctionEngine` (bid fan-out, acceptance, execution, `busy` set for concurrency guard)
+- [x] **1c** — Create `src/auction/mcp_tools.py` — fleet-level tools: `fleet_request_bids`, `fleet_list_auctions`, `fleet_accept_bid`, `fleet_execute_task`, `fleet_get_auction_status`
 
 ---
 
@@ -178,9 +178,9 @@ Add `--chain` flag to all CLI scripts so robots can be registered and discovered
 
 Shared helper that registers marketplace tools on each robot's MCP server. External marketplace calls these directly at `/{robot}/mcp`.
 
-- [ ] Create `src/core/marketplace_tools.py` — registers `robot_submit_bid`, `robot_execute_task`, `robot_get_pricing` on any robot MCP server
-- [ ] Call `marketplace_tools` in `create_robot_server()` so all plugins get the tools automatically
-- [ ] Add the three tool names to each plugin's `tool_names()` list
+- [x] Create `src/core/marketplace_tools.py` — registers `robot_submit_bid`, `robot_execute_task`, `robot_get_pricing` on any robot MCP server
+- [x] Call `marketplace_tools` in `create_robot_server()` so all plugins get the tools automatically
+- [x] Add the three tool names to each plugin's `tool_names()` list
 
 ---
 

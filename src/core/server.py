@@ -33,6 +33,10 @@ def create_robot_server(plugin: RobotPlugin) -> FastMCP:
         auth=auth,
     )
     plugin.register_tools(mcp)
+
+    from core.marketplace_tools import register as register_marketplace_tools
+    register_marketplace_tools(mcp, plugin)
+
     return mcp
 
 
@@ -87,8 +91,10 @@ def create_gateway(plugins: dict[str, RobotPlugin]) -> FastAPI:
         mcp_apps[name] = mcp.http_app()
         mounted_robots[name] = f"/{name}/mcp"
 
-    # Fleet orchestrator (discovery tools)
-    fleet_mcp = create_fleet_server(mounted_robots=mounted_robots)
+    # Fleet orchestrator (discovery + auction tools)
+    from auction.engine import AuctionEngine
+    auction_engine = AuctionEngine(plugins)
+    fleet_mcp = create_fleet_server(mounted_robots=mounted_robots, auction_engine=auction_engine)
     mcp_apps["fleet"] = fleet_mcp.http_app()
 
     @asynccontextmanager
