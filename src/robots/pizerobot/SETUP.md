@@ -23,7 +23,8 @@ hardware.
 - an external MCP client calls the Pi-hosted `/pizerobot/mcp` endpoint
 
 This has been tested successfully on a Pi Zero W v1.1 for local LAN access.
-Pi-hosted ngrok has also been tested to the public gateway root endpoint.
+Pi-hosted ngrok has also been tested for public MCP calls and public
+MCP-triggered servo actuation.
 
 ## Hardware
 
@@ -160,8 +161,9 @@ Suggested smoke-test order:
 ## Current Limits
 
 - local LAN Pi-hosted MCP gateway works
-- Pi-hosted ngrok starts and serves the public gateway root URL
-- public MCP tool calls through Pi-hosted ngrok still need a final client smoke test
+- Pi-hosted ngrok starts and serves public MCP calls
+- public `pizerobot_servo_sweep` works through Pi-hosted ngrok
 - marketplace metadata has not yet been repointed specifically for Pi-hosted exposure
+- camera-backed marketplace bids decline while the Pi camera reports unavailable
 - GPIO Zero servo control from the isolated venv needs a PWM-capable backend;
   `GPIOZERO_PIN_FACTORY=rpigpio` worked for the tested Pi Zero W

@@ -18,9 +18,9 @@ Build a real-hardware MCP path for this repo using a Raspberry Pi Zero W:
   - Pi Zero W runs `pi_service.py` locally on `127.0.0.1:8081`.
   - A Mac MCP client called the Pi-hosted endpoint and moved the servo through GPIO18.
 - Pi-hosted ngrok starts successfully and the static ngrok domain reaches the
-  Pi-hosted gateway root endpoint.
-- Public MCP tool calls through the Pi-hosted ngrok URL still need a final
-  smoke test from an MCP client.
+  Pi-hosted gateway.
+- Public MCP tool calls through the Pi-hosted ngrok URL work.
+- Public MCP-triggered servo actuation through the Pi-hosted ngrok URL works.
 
 Confirmed working end-to-end:
 
@@ -99,7 +99,6 @@ Mac FastMCP client
 
 ## What Is Not Yet Proven
 
-- Public MCP tool calls through Pi-hosted ngrok.
 - Publishing/repointing the Pi-hosted endpoint as the active marketplace route.
 - Long-running reliability under repeated requests.
 - Camera capture and servo motion under concurrent task load.
@@ -111,11 +110,26 @@ Mac FastMCP client
 - `scripts/serve.py --robots pizerobot --port 8002 --ngrok` started on the Pi.
 - The static ngrok domain returned the Pi-hosted gateway root JSON with the
   expected `/pizerobot/mcp` and `/fleet/mcp` paths.
+- A public FastMCP client listed the pizerobot tools through
+  `https://quack-tremor-sprinkled.ngrok-free.dev/pizerobot/mcp`.
+- A public FastMCP client called `pizerobot_get_cpu_temperature` successfully.
+- A public FastMCP client called `pizerobot_servo_sweep` successfully and
+  returned `status=ok`.
 - The ngrok process listened locally on `127.0.0.1:4040`.
 - A warning appeared during startup:
   `failed to check for update`, but the tunnel still served traffic.
-- The final public MCP client smoke test was not completed in this chat because
-  the local tool approval budget was exhausted before the check could run.
+
+## Marketplace Findings
+
+- `robot_get_pricing` works through the public Pi-hosted MCP endpoint.
+- `robot_submit_bid` is reachable through the public Pi-hosted MCP endpoint.
+- `robot_submit_bid` currently declines visual-inspection/camera tasks because
+  the Pi camera probe returns `No cameras available!`.
+- `scripts/update_agent.py pizerobot 11155111:5439` failed with
+  `execution reverted: Not authorized`.
+- The local signer address was confirmed as
+  `0x224833E88Bfb24C7cb8a5Db9BdefAb224C9372EE`, so the active marketplace
+  identity appears to require a different authorized update path or account.
 
 ## Discord-Safe Summary
 
@@ -128,6 +142,7 @@ Pi Zero W. The Pi served `/pizerobot/mcp` locally on LAN, and an MCP call from a
 Mac client triggered GPIO18 servo movement through the Pi-hosted gateway and
 Pi-local hardware service.
 
-The remaining caveat is public MCP and marketplace routing: the static ngrok
-domain reached the Pi-hosted gateway root, but a public MCP tool call and
-marketplace metadata repointing still need to be verified.
+The remaining caveat is marketplace routing/eligibility: public MCP through the
+Pi-hosted ngrok endpoint works, including servo actuation, but the active
+marketplace identity could not be updated from the local signer and camera-based
+bids decline while the camera is unavailable.
