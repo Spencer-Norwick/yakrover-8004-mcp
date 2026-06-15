@@ -23,7 +23,7 @@ hardware.
 - an external MCP client calls the Pi-hosted `/pizerobot/mcp` endpoint
 
 This has been tested successfully on a Pi Zero W v1.1 for local LAN access.
-Public ngrok/marketplace exposure has not yet been moved onto the Pi.
+Pi-hosted ngrok has also been tested to the public gateway root endpoint.
 
 ## Hardware
 
@@ -64,6 +64,11 @@ Expected on the Raspberry Pi:
   - `rpicam-still`, or
   - `libcamera-still`
 - `gpiozero` plus a PWM-capable GPIO backend for servo control
+- for the isolated Pi full-stack venv, install the Pi GPIO packages:
+
+```bash
+.venv/bin/python -m pip install gpiozero RPi.GPIO lgpio
+```
 
 Environment:
 
@@ -117,6 +122,24 @@ MCP endpoint:
 http://<pi-ip>:8002/pizerobot/mcp
 ```
 
+### Pi-hosted ngrok gateway
+
+Stop any Mac gateway using the same static ngrok domain first. Then run on the
+Pi:
+
+```bash
+PIZEROBOT_URL=http://127.0.0.1:8081 PYTHONPATH=src \
+  .venv/bin/python scripts/serve.py --robots pizerobot --port 8002 --ngrok
+```
+
+Public endpoint:
+
+```text
+https://<ngrok-domain>/pizerobot/mcp
+```
+
+On first run, `pyngrok` may download and install the ngrok agent for the Pi.
+
 ## Current Tools
 
 - `pizerobot_is_online`
@@ -137,6 +160,8 @@ Suggested smoke-test order:
 ## Current Limits
 
 - local LAN Pi-hosted MCP gateway works
-- public ngrok/marketplace exposure from the Pi has not yet been tested
+- Pi-hosted ngrok starts and serves the public gateway root URL
+- public MCP tool calls through Pi-hosted ngrok still need a final client smoke test
+- marketplace metadata has not yet been repointed specifically for Pi-hosted exposure
 - GPIO Zero servo control from the isolated venv needs a PWM-capable backend;
   `GPIOZERO_PIN_FACTORY=rpigpio` worked for the tested Pi Zero W

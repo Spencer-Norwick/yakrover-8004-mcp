@@ -17,7 +17,10 @@ Build a real-hardware MCP path for this repo using a Raspberry Pi Zero W:
   - Pi Zero W runs `scripts/serve.py --robots pizerobot --port 8002`.
   - Pi Zero W runs `pi_service.py` locally on `127.0.0.1:8081`.
   - A Mac MCP client called the Pi-hosted endpoint and moved the servo through GPIO18.
-- Public ngrok/marketplace exposure has not yet been moved onto the Pi.
+- Pi-hosted ngrok starts successfully and the static ngrok domain reaches the
+  Pi-hosted gateway root endpoint.
+- Public MCP tool calls through the Pi-hosted ngrok URL still need a final
+  smoke test from an MCP client.
 
 Confirmed working end-to-end:
 
@@ -96,11 +99,23 @@ Mac FastMCP client
 
 ## What Is Not Yet Proven
 
-- Running ngrok from the Pi.
-- Publishing the Pi-hosted endpoint as the public marketplace route.
+- Public MCP tool calls through Pi-hosted ngrok.
+- Publishing/repointing the Pi-hosted endpoint as the active marketplace route.
 - Long-running reliability under repeated requests.
 - Camera capture and servo motion under concurrent task load.
 - Battery/power behavior under servo load.
+
+## Pi-Hosted Ngrok Findings
+
+- `pyngrok` downloaded and installed an ngrok binary on the Pi Zero W.
+- `scripts/serve.py --robots pizerobot --port 8002 --ngrok` started on the Pi.
+- The static ngrok domain returned the Pi-hosted gateway root JSON with the
+  expected `/pizerobot/mcp` and `/fleet/mcp` paths.
+- The ngrok process listened locally on `127.0.0.1:4040`.
+- A warning appeared during startup:
+  `failed to check for update`, but the tunnel still served traffic.
+- The final public MCP client smoke test was not completed in this chat because
+  the local tool approval budget was exhausted before the check could run.
 
 ## Discord-Safe Summary
 
@@ -113,5 +128,6 @@ Pi Zero W. The Pi served `/pizerobot/mcp` locally on LAN, and an MCP call from a
 Mac client triggered GPIO18 servo movement through the Pi-hosted gateway and
 Pi-local hardware service.
 
-The remaining caveat is public exposure: ngrok/marketplace routing has not yet
-been moved onto the Pi.
+The remaining caveat is public MCP and marketplace routing: the static ngrok
+domain reached the Pi-hosted gateway root, but a public MCP tool call and
+marketplace metadata repointing still need to be verified.
