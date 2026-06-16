@@ -51,3 +51,18 @@ def register(mcp: FastMCP, robot: PiZeroRobotClient) -> None:
             gpio_pin=gpio_pin,
             delay_seconds=delay_seconds,
         )
+
+    @mcp.tool
+    async def pizerobot_dual_servo_sweep(
+        gpio_pin_a: int = 18,
+        gpio_pin_b: int = 13,
+        duration_seconds: float = 5.0,
+        steps: int = 51,
+    ) -> dict:
+        """Sweep two small hobby servos together from minimum to maximum position."""
+        return await robot.dual_servo_sweep(
+            gpio_pin_a=gpio_pin_a,
+            gpio_pin_b=gpio_pin_b,
+            duration_seconds=duration_seconds,
+            steps=steps,
+        )

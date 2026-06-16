@@ -194,6 +194,59 @@ def _sweep_servo(
     }
 
 
+def _sweep_dual_servos(
+    gpio_pin_a: int,
+    gpio_pin_b: int,
+    duration_seconds: float,
+    steps: int,
+    min_pulse_width: float,
+    max_pulse_width: float,
+) -> dict:
+    try:
+        from gpiozero import Servo
+    except ImportError as exc:
+        raise RuntimeError("gpiozero is not installed on the Pi.") from exc
+
+    steps = max(2, steps)
+    delay_seconds = duration_seconds / (steps - 1)
+    positions = [
+        -1.0 + (2.0 * index / (steps - 1))
+        for index in range(steps)
+    ]
+
+    servo_a = Servo(
+        gpio_pin_a,
+        min_pulse_width=min_pulse_width,
+        max_pulse_width=max_pulse_width,
+    )
+    servo_b = Servo(
+        gpio_pin_b,
+        min_pulse_width=min_pulse_width,
+        max_pulse_width=max_pulse_width,
+    )
+    try:
+        for position in positions:
+            servo_a.value = position
+            servo_b.value = position
+            time.sleep(delay_seconds)
+    finally:
+        servo_a.detach()
+        servo_b.detach()
+
+    return {
+        "status": "ok",
+        "gpio_pins": [gpio_pin_a, gpio_pin_b],
+        "start_position": positions[0],
+        "end_position": positions[-1],
+        "steps": steps,
+        "duration_seconds": duration_seconds,
+        "delay_seconds": delay_seconds,
+        "min_pulse_width": min_pulse_width,
+        "max_pulse_width": max_pulse_width,
+        "completed_at": _now(),
+    }
+
+
 def _service_info() -> dict:
     return {
         "service": "pizerobot-pi-service",
@@ -247,6 +300,24 @@ class Handler(BaseHTTPRequestHandler):
                     gpio_pin=max(0, min(27, int(payload.get("gpio_pin", 18)))),
                     positions=positions,
                     delay_seconds=max(0.05, min(2.0, float(payload.get("delay_seconds", 0.7)))),
+                    min_pulse_width=max(
+                        0.0003,
+                        min(0.0015, float(payload.get("min_pulse_width", 0.0006))),
+                    ),
+                    max_pulse_width=max(
+                        0.0015,
+                        min(0.0030, float(payload.get("max_pulse_width", 0.0024))),
+                    ),
+                )
+            elif self.path == "/servo/dual-sweep":
+                result = _sweep_dual_servos(
+                    gpio_pin_a=max(0, min(27, int(payload.get("gpio_pin_a", 18)))),
+                    gpio_pin_b=max(0, min(27, int(payload.get("gpio_pin_b", 13)))),
+                    duration_seconds=max(
+                        0.5,
+                        min(30.0, float(payload.get("duration_seconds", 5.0))),
+                    ),
+                    steps=max(2, min(200, int(payload.get("steps", 51)))),
                     min_pulse_width=max(
                         0.0003,
                         min(0.0015, float(payload.get("min_pulse_width", 0.0006))),

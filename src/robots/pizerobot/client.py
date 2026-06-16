@@ -70,6 +70,21 @@ class PiZeroRobotClient:
         }
         return await self._post_json("/servo/sweep", payload)
 
+    async def dual_servo_sweep(
+        self,
+        gpio_pin_a: int = 18,
+        gpio_pin_b: int = 13,
+        duration_seconds: float = 5.0,
+        steps: int = 51,
+    ) -> dict:
+        payload = {
+            "gpio_pin_a": max(0, min(27, int(gpio_pin_a))),
+            "gpio_pin_b": max(0, min(27, int(gpio_pin_b))),
+            "duration_seconds": max(0.5, min(30.0, float(duration_seconds))),
+            "steps": max(2, min(200, int(steps))),
+        }
+        return await self._post_json("/servo/dual-sweep", payload)
+
     async def _get_json(self, path: str) -> dict:
         return await asyncio.to_thread(self._sync_get_json, path)
 

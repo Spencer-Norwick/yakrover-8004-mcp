@@ -32,6 +32,7 @@ class PiZeroRobotPlugin(RobotPlugin):
             "pizerobot_camera_is_available",
             "pizerobot_capture_image",
             "pizerobot_servo_sweep",
+            "pizerobot_dual_servo_sweep",
             *MARKETPLACE_TOOL_NAMES,
         ]
 
