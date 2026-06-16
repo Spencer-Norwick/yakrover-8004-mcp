@@ -21,6 +21,8 @@ Build a real-hardware MCP path for this repo using a Raspberry Pi Zero W:
   Pi-hosted gateway.
 - Public MCP tool calls through the Pi-hosted ngrok URL work.
 - Public MCP-triggered servo actuation through the Pi-hosted ngrok URL works.
+- Public marketplace-style bid and execute calls through the Pi-hosted ngrok
+  URL work for camera capture tasks.
 
 Confirmed working end-to-end:
 
@@ -99,7 +101,7 @@ Mac FastMCP client
 
 ## What Is Not Yet Proven
 
-- Publishing/repointing the Pi-hosted endpoint as the active marketplace route.
+- Updating the active on-chain marketplace agent metadata from the local signer.
 - Long-running reliability under repeated requests.
 - Camera capture and servo motion under concurrent task load.
 - Battery/power behavior under servo load.
@@ -123,8 +125,13 @@ Mac FastMCP client
 
 - `robot_get_pricing` works through the public Pi-hosted MCP endpoint.
 - `robot_submit_bid` is reachable through the public Pi-hosted MCP endpoint.
-- `robot_submit_bid` currently declines visual-inspection/camera tasks because
-  the Pi camera probe returns `No cameras available!`.
+- `robot_submit_bid` accepts a visual-inspection task when the OV5647 camera is
+  connected and the request requires `still_image` / `visible_light`.
+- `robot_execute_task` completed a public marketplace-style camera capture with
+  `payment_source=marketplace`, `640x480`, no base64 payload, about `3.15s`
+  duration, and a `7604` byte JPEG saved on the Pi.
+- `pizerobot_servo_sweep` completed over the same public Pi-hosted MCP endpoint
+  after the camera smoke test.
 - `scripts/update_agent.py pizerobot 11155111:5439` failed with
   `execution reverted: Not authorized`.
 - The local signer address was confirmed as
@@ -142,7 +149,7 @@ Pi Zero W. The Pi served `/pizerobot/mcp` locally on LAN, and an MCP call from a
 Mac client triggered GPIO18 servo movement through the Pi-hosted gateway and
 Pi-local hardware service.
 
-The remaining caveat is marketplace routing/eligibility: public MCP through the
-Pi-hosted ngrok endpoint works, including servo actuation, but the active
-marketplace identity could not be updated from the local signer and camera-based
-bids decline while the camera is unavailable.
+The remaining caveat is on-chain marketplace metadata authorization: public MCP
+through the Pi-hosted ngrok endpoint works, including servo actuation and a
+marketplace-style camera bid/execute flow, but the active marketplace identity
+could not be updated from the local signer.
